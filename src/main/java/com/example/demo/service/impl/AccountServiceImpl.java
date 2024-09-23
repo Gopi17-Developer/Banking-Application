@@ -6,7 +6,12 @@ import com.example.demo.models.Account;
 import com.example.demo.models.AccountResponse;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.service.AccountService;
+
+import jakarta.persistence.criteria.From;
+
+import org.hibernate.annotations.DialectOverride.Where;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.query.EqlParser.Select_clauseContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,10 +27,12 @@ public class AccountServiceImpl implements AccountService {
     AccountConfig accountConfig;
     @Override
     public ResponseEntity<AccountResponse> create(CreateAccountRequest createAccountRequest) {
+	
         //convert request to account
         Account account=createAccountRequest.ToAccount();
         //save account in db
         accountRepository.save(account);
+        
         //return the created account as account response
         AccountResponse accountResponse= accountConfig.toAccountResponse(account);
         return ResponseEntity.status(HttpStatus.OK).body(accountResponse);
@@ -35,6 +42,7 @@ public class AccountServiceImpl implements AccountService {
     public ResponseEntity<AccountResponse> get(Long id) {
         //find the account by given id
         Account account=accountRepository.findById(id).orElseThrow(()->new RuntimeException("Account is not found with"+String.valueOf(id)));
+        
         AccountResponse accountResponse=accountConfig.toAccountResponse(account);
         return new ResponseEntity<>(accountResponse,HttpStatus.OK);
     }
